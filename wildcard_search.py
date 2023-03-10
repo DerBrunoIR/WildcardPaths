@@ -20,21 +20,28 @@ def wildcard_match(pattern: str, test: str, ignoreCase=False) -> bool:
         return False
 
     return max(
-            cmpChars(pattern[0], test[0]) and wildcard_match(pattern[1:], test[1:]),
-            pattern[0] == '*' and wildcard_match(pattern[1:], test),
-            pattern[0] == '*' and wildcard_match(pattern, test[1:]),
-            pattern[0] == '*' and wildcard_match(pattern[1:], test[1:]), 
+            cmpChars(pattern[0], test[0]) and wildcard_match(pattern[1:], test[1:], ignoreCase=ignoreCase),
+            pattern[0] == '*' and wildcard_match(pattern[1:], test, ignoreCase=ignoreCase),
+            pattern[0] == '*' and wildcard_match(pattern, test[1:], ignoreCase=ignoreCase),
+            pattern[0] == '*' and wildcard_match(pattern[1:], test[1:], ignoreCase=ignoreCase), 
             )
 
-   
-def matching_paths(root: str, path: str):
+"""
+    matching_paths
+    --------------
+    root: str 
+    path: str  This can contain wildcards, eg. './file*/*/a_unique_file.txt'
+    returns All existing paths that match the given path
+
+"""
+def matching_paths(root: str, wpath: str) -> list[str]:
     assert os.path.exists(root)
     res = []
-    pattern = path.split("/")[0]
+    pattern = wpath.split("/")[0]
     matches = [
            os.path.join(root, x) for x in os.listdir(root) if wildcard_match(pattern, x)
            ]
-    nextPath = "/".join(path.split("/")[1:])
+    nextPath = "/".join(wpath.split("/")[1:])
     # anchor
     if nextPath == "":
         return matches
@@ -47,6 +54,18 @@ def matching_paths(root: str, path: str):
 
     return res
     
+"""
+    SearchController
+    ----------------
+    A Controller-Class to execute wildcard searchs
+"""
+class SearchController:
+    def __init__(self, root: str = os.curdir):
+        assert os.path.exists(root)
+        self.root = root
+
+    def search(self, wpath: str):
+        return matching_paths(self.root, wpath)
 
 if __name__ == "__main__":
     print(matching_paths("/home/bruno/Uni/21 WinterSemester", "Ein*/*woche*"))
