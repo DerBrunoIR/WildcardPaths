@@ -1,6 +1,7 @@
 import re 
 from pathlib import Path 
-from typing import Type, Any
+from typing import Any, Iterable
+import os
 
 
 class Pattern:
@@ -44,8 +45,10 @@ class Regex(Pattern):
 
     """
     pattern: re.Pattern
+    _string: str
 
     def __init__(self, pattern: str, flags: int=0):
+        self._string = pattern
         self.pattern = re.compile(pattern, flags=flags)
 
     def match(self, test: str) -> bool:
@@ -56,6 +59,9 @@ class Regex(Pattern):
         if isinstance(other, Regex):
             return self.pattern == other.pattern 
         return False
+    
+    def __repr__(self):
+        return f"<Regex pattern='{self._string}'>"
 
 
 class Wildcard(Pattern):
@@ -93,7 +99,7 @@ class Wildcard(Pattern):
         for (pat, repl) in substitude:
             converted = converted.replace(pat, repl)
 
-        return converted
+        return "^" + converted + "$"
 
 
 class PatternArray(Pattern):
@@ -111,7 +117,7 @@ class PatternArray(Pattern):
         initiate with a list of patterns IMPLEMENTING the 'Pattern' interface!
 
     match(self, tests: list[str]) -> bool 
-        This method checks weather all strings in the list match the pattern at the same index.
+        This method returns True if all test strings match the pattern on the same index.
 
     __len__(self) -> int 
         returns the length of the pattern list
@@ -126,9 +132,11 @@ class PatternArray(Pattern):
         self.patterns = patterns 
 
     def match(self, tests: list[str]) -> bool:
-        return all((
-                pat.match(test) for (test, pat) in zip(tests, self.patterns)
-            ))
+        for (test, pat) in zip(tests, self.patterns):
+            if not pat.match(test):
+                return False 
+        return True
+
 
     def __len__(self) -> int:
         return len(self.patterns)
@@ -137,6 +145,9 @@ class PatternArray(Pattern):
         if isinstance(other, PatternArray):
             return self.patterns == other.patterns 
         return False
+    
+    def __repr__(self):
+        return f"{self.patterns}"
         
 
 class WildcardPath:
@@ -158,7 +169,7 @@ class WildcardPath:
         Initiate this a WildcardPath with a path, that can contain wildcard characters '*', '?' and '#'. More infomation at 'Wildcard'.
 
     matchingPaths(self)
-        returns all matching paths 
+        returns all matching paths.
 
     Static Methods  # mybe move them to a separate class? 
     --------------
@@ -171,10 +182,6 @@ class WildcardPath:
     _containsWildcards(path: Path) -> bool 
         returns weather the given path contains any wildcard characters
 
-    _listPaths(root: Path, depth: int) -> list[Path] 
-        returns all paths where depth is equal to the number of Path.parts relative to the root path.
-
-
     """
     pattern: PatternArray
     root: Path
@@ -182,8 +189,9 @@ class WildcardPath:
     def __init__(self, path: Path):
         path = path.resolve()
         self.root = self._extractRoot(path)
+        assert self.root.exists(), f"{path} must exists!"
         selector = self._extractSelector(path)
-        self.pattern = PatternArray([Regex(x) for x in selector])
+        self.pattern = PatternArray([Wildcard(x) for x in selector])
 
     @staticmethod 
     def _extractRoot(path: Path) -> Path:
@@ -198,7 +206,7 @@ class WildcardPath:
         while WildcardPath._containsWildcards(path):
             selector.append(path.parts[-1])
             path = path.parent 
-        return selector
+        return selector[::-1]
 
     @staticmethod 
     def _containsWildcards(path: Path) -> bool:
@@ -206,26 +214,23 @@ class WildcardPath:
         match = re.search(r"[\*\?\#]", path_string)
         return match is not None
     
-    @staticmethod 
-    def _listPaths(root: Path, depth: int) -> list[Path]:
+    def matchingPaths(self) -> Iterable[Path]:
+        root = self.root
+        root_len = len(self.root.parts)
+        depth = len(self.pattern)
         queue: list[Path] = [root]
-        while len(queue[-1].parts) <= depth:
+        while len(queue) > 0:
             path = queue.pop(0)
-            folders = (x for x in path.iterdir() if x.is_dir())
-            queue.extend(folders)
-        res = []
-        for folder in queue:
-            res.extend(folder.iterdir())
-        return res
-
-    def matchingPaths(self) -> list[Path]: 
-        root = self.root 
-        paths = self._listPaths(root, len(self.pattern))
-        return list(
-                filter(
-                    lambda x: self.pattern.match(list(x.parts)), paths)
-                )
-
-        
-
+            if not os.access(path, os.R_OK):
+                print(f"[PERMISSION_DENIED] '{path}'")
+                continue
+            if len(path.parts) - root_len >= depth:
+                yield path
+                continue
+            if path.is_file():
+                continue
+            for p in path.iterdir():
+                parts = list(p.parts)[root_len:]
+                if self.pattern.match(parts):
+                    queue.append(p)
 
