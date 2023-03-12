@@ -1,9 +1,11 @@
 # WildcardPaths
 ## about 
 Hello, this is a small project of mine i wanted to share.
-I dont like the unix command find because of his large amount of options that i've always to lookup.
-Those are in my opinion just overkill, if you just want to get file paths for certain files that match a simple pattern.
-I developed this little cli application to help me. It's not perfect but perhaps your are excited.
+\
+I dont like the unix command **find** because of his large amount of options that i've always to lookup.
+Those are in my opinion just overkill, if you just want to get file paths for files whose name match a simple pattern.
+I developed this little cli application to help me. It's not perfect but perhaps your are excited. 
+
 # what is this project about?
 An example query:
 ```
