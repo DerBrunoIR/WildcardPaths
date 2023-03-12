@@ -30,6 +30,8 @@ This works because the algortihm uses a top-down approach where it filters non m
 
 ## example
 ![image](https://user-images.githubusercontent.com/95578637/224540445-3144e657-e48b-49e0-b67c-6a4e5aa6cd9e.png)
+\
+*Note: i aliased find with `python3 .../find.py`*
 
 # Wildcards 
 
@@ -41,7 +43,7 @@ This works because the algortihm uses a top-down approach where it filters non m
 | ** | zero or more folders with any name | NO | 
 
 # Windows, Mac, ...
-I developed this on my ubuntu 22.04.
+This has been developed so far only on ubuntu 22.04.
 So other system might not work. 
 
 # TODO
@@ -51,5 +53,4 @@ Things that could be improved
 - add windows compatibility
 
 # Disclaimer
-- english isn't my nativ language, feel free to point me to some mistakes i made :)
 - this is my first public contribution
