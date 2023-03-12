@@ -1,4 +1,4 @@
-# wildcard-search
+# WildcardPaths
 ## about 
 Hello, this is a small project of mine i wanted to share.
 I dont like the unix command find because of his large amount of options that i've always to lookup.
