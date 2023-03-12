@@ -2,7 +2,10 @@ import re
 from pathlib import Path 
 from typing import Any, Iterable
 import os
+import logging
 
+
+logger = logging.getLogger(Path(__file__).name)
 
 class Pattern:
     """
@@ -222,7 +225,7 @@ class WildcardPath:
         while len(queue) > 0:
             path = queue.pop(0)
             if not os.access(path, os.R_OK):
-                print(f"[PERMISSION_DENIED] '{path}'")
+                logger.warning(f"permission denied for path '{path}'")
                 continue
             if len(path.parts) - root_len >= depth:
                 yield path
