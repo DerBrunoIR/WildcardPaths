@@ -224,15 +224,24 @@ class WildcardPath:
         queue: list[Path] = [root]
         while len(queue) > 0:
             path = queue.pop(0)
-            if not os.access(path, os.R_OK):
-                logger.warning(f"permission denied for path '{path}'")
-                continue
+
             if len(path.parts) - root_len >= depth:
                 yield path
                 continue
-            if path.is_file():
+
+            if not os.access(path, os.R_OK):
                 continue
-            for p in path.iterdir():
+
+            if not path.is_dir():
+                continue
+            
+            try:
+                dir_content = list(path.iterdir())
+            except Exception as e:
+                logger.warning(f"{e} for path '{path}'")
+                continue
+
+            for p in dir_content:
                 parts = list(p.parts)[root_len:]
                 if self.pattern.match(parts):
                     queue.append(p)
