@@ -43,7 +43,8 @@ This works because the algortihm uses a top-down approach where it filters non m
 | ** | zero or more folders with any name | NO | 
 
 # Windows, Mac, ...
-This has been developed so far only on ubuntu 22.04.
+This has been developed on ubuntu 22.04 only until now.
+\
 So other system might not work. 
 
 # TODO
