@@ -42,7 +42,7 @@ This works because the algortihm uses a top-down approach where it filters non m
 | * | zero or more characters | yes |
 | ? | exactly one character | yes |
 | # | excatly one number | yes |
-| ** | zero or more folders with any name | mybe NEVER | 
+| ** | zero or more folders with any name | no | 
 
 # Windows, Mac, ...
 This has been developed on ubuntu 22.04 only until now.
