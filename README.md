@@ -55,5 +55,3 @@ Things that could be improved
 - some way to add cli autocomplete
 - add windows compatibility
 
-# Disclaimer
-- this is my first public contribution
